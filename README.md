@@ -24,7 +24,7 @@ FIT also requires that you have FireFox or Chrome installed. Use --chrome to use
 
 # Screenshot
 
-![screenshot](https://github.com/ratava/fit/raw/master/screenshot.png)
+![screenshot](https://github.com/ratava/fit/blob/main/screenshot.png)
 
 # Using FIT
 
