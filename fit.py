@@ -321,7 +321,7 @@ def _wf(full):
     print("Done")
 
     data2 = lines.split("\n")
-    data = data2[:20]
+    data = data2[:100]
     if full:
       print(G + "[+] " + W + "We are full mode.")
       data = data2  
