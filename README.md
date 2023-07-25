@@ -27,9 +27,9 @@ FIT also requires that you have FireFox or Chrome installed. Use --chrome to use
 ![screenshot](https://github.com/ratava/fit/blob/main/screenshot.png)
 
 # Using FIT
+python fit.py command [--option] 
 
 all - run all tests
-
 iprep - ip repulation
 
 vxvault - vx vault malware url list
