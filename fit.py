@@ -15,7 +15,7 @@ import platform
 # disable warnings in requests for cert bypass
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
-__version__ = 0.20
+__version__ = 0.21
 
 # some console colours
 W = '\033[0m'  # white (normal)
@@ -123,7 +123,8 @@ def all(repeat, srcip, full, chrome):
         _iprep(srcip, full)
         _vxvault(srcip, full)
         _malwareurls(srcip, full)
-        _appctrl()
+        _appctrl(full)
+        _wf(full)
         _webtraffic(full, chrome)
         if repeat == False:
             exit()
@@ -271,22 +272,30 @@ def _malwareurls(srcip, full):
                  pass
 
 @cli.command()
-def appctrl():
+@click.option('--full', is_flag=True, help="Run in full list mode.")
+def appctrl(full):
     ''' Trigger application control '''
-    _appctrl()
+    _appctrl(full)
 
 
-def _appctrl():
+def _appctrl(full):
     ''' Trigger application control '''
     print(G + "[+] " + W + "Application Congtrol")
     print(G + "[+] " + W + "Fetching AppCtrl list...", end=" ")
-    # r = requests.get("http://vxvault.net/URL_List.php", timeout=1)
     f = open("appctrl.csv", 'r')
     lines = f.read()
     print("Done")
 
-    lines = lines.split("\n")
-    with click.progressbar(lines) as urls:
+    data2 = lines.split("\n")
+    data = data2[:20]
+    if full:
+      print(G + "[+] " + W + "We are full mode.")
+      data = data2  
+    
+    count = str(len(data))
+    print(G + "[+] " + W + "Added " + count + " Testing URL's")
+
+    with click.progressbar(data, label="Triggering URL Categories.", length=len(data)) as urls:
         for url in urls:
             try:
                 r = requests.get(url, timeout=1)
@@ -295,12 +304,13 @@ def _appctrl():
 
 
 @cli.command()
-def wf():
+@click.option('--full', is_flag=True, help="Run in full list mode.")
+def wf(full):
     '''  URL categorisation trigger '''
-    _wf()
+    _wf(full)
 
 
-def _wf():
+def _wf(full):
     '''  URL categorisation trigger '''
     # http://www.malwaredomainlist.com/mdlcsv.php
     print(G + "[+] " + W + "WF categorisation trigger")
@@ -310,8 +320,16 @@ def _wf():
     lines = f.read()
     print("Done")
 
-    lines = lines.split("\n")
-    with click.progressbar(lines) as urls:
+    data2 = lines.split("\n")
+    data = data2[:20]
+    if full:
+      print(G + "[+] " + W + "We are full mode.")
+      data = data2  
+    
+    count = str(len(data))
+    print(G + "[+] " + W + "Added " + count + " Testing URL's")
+
+    with click.progressbar(data, label="Triggering URL Categories.", length=len(data)) as urls:
         for url in urls:
             try:
                 r = requests.get(url, timeout=1)
