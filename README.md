@@ -26,7 +26,7 @@ FIT also requires that you have FireFox or Chrome installed. Use --chrome to use
 
 ![screenshot](https://github.com/ratava/fit/blob/main/screenshot.png)
 
-#Quick mode  
+# Quick mode  
 Bye default FIT will not use a quick test mode. The following applies:  
   iprep: 100 enties  
   vxvault: 100 entries  
@@ -39,7 +39,7 @@ Use command line option --full to runn full lists
   
 
 # Using FIT
-##Command Line
+## Command Line
 python fit.py command [--option] 
 
 all - run all tests  
@@ -49,7 +49,7 @@ malwareurls - urlhouse malware url test
 appctrl - application control testing  
 webtraffic - Good Web Traffic testing  
 
-##Options
+## Options
 --full
   Run Test in full list mode. Default quick mode
 
