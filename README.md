@@ -36,14 +36,12 @@ Bye default FIT will not use a quick test mode. The following applies
 ##Command Line
 python fit.py command [--option] 
 
-##Commands
-all - run all tests  
-iprep - ip repulation test 
-vxvault - vx vault malware url test  
-malwareurls - urlhouse malware url test  
-appctrl - application control test  
-webtraffic - Good Web Traffic test
-wf - Web Filter Categoiries test  
+all - run all tests
+iprep - ip repulation
+vxvault - vx vault malware url list
+malwareurls - urlhouse malware url test
+appctrl - application control testing
+webtraffic - Good Web Traffic testing
 
 ##Options
 --full
@@ -52,8 +50,8 @@ wf - Web Filter Categoiries test
 --srcip {ip} / -s {ip}  
   Let's you set the source IP used by fit. You can use multiple -s/--srcip to set multiple source IPs. This increases the number of clients seen. You will need to setup your network card to use a unique MAC per IP, or the reported results will not be as desiered.
 
---chrome  
-  Use Chrome instead of the default Firefox browser for Web Traffic tests.
+--chrome
+use Chrome instead of the default Firefox browser for Web Traffic tests.
 
 --repeat  
   Option on the ```all``` command. Will run the traffic in a loop, useful in a lab style enviroment. 
