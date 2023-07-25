@@ -386,7 +386,7 @@ def _webtraffic(full, chrome):
     count = str(len(data))
     print(G + "[+] " + W + "Added " + count + " Testing URL's")
 
-    with click.progressbar(data, label="Generating Web Traffic", length=len(data)) as urls:
+    with click.progressbar(data, label="Generating Traffic", length=len(data)) as urls:
         for url in urls:
             try:
                 driver.get("http://www.%s" % url)
