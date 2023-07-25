@@ -125,7 +125,7 @@ def all(repeat, srcip, full, chrome):
         _malwareurls(srcip, full)
         _appctrl(full)
         _wf(full)
-        _webtraffic(full, chrome)
+        #_webtraffic(full, chrome)
         if repeat == False:
             exit()
 
@@ -164,7 +164,7 @@ def _iprep(srcip, full):
     count = str(len(data))
     print(G + "[+] " + W + "Added " + count + " Reputation IP's")
 
-    with click.progressbar(data, label="Checking reputation IP's", length=len(data)) as ips:
+    with click.progressbar(data, label="Checking IP's", length=len(data)) as ips:
         for ip in ips:
             try:
                 tn = telnetlib.Telnet(ip, 443, 1)
@@ -295,7 +295,7 @@ def _appctrl(full):
     count = str(len(data))
     print(G + "[+] " + W + "Added " + count + " Testing URL's")
 
-    with click.progressbar(data, label="Triggering URL Categories.", length=len(data)) as urls:
+    with click.progressbar(data, label="Triggering Categories", length=len(data)) as urls:
         for url in urls:
             try:
                 r = requests.get(url, timeout=1)
