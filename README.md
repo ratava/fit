@@ -36,10 +36,13 @@ appctrl - application control testing
 webtraffic - Good Web Traffic testing
 
 --full 
-  Run Test in full list mode. Default quick mode
+Run Test in full list mode. Default quick mode
+
 --srcip {ip} / -s {ip}  
-  Let's you set the source IP used by fit. You can use multiple -s/--srcip to set multiple source IPs. This increases the number of clients seen. You will need to setup your network card to use a unique MAC per IP, or the reported results will not be as desiered.
+Let's you set the source IP used by fit. You can use multiple -s/--srcip to set multiple source IPs. This increases the number of clients seen. You will need to setup your network card to use a unique MAC per IP, or the reported results will not be as desiered.
+
 --chrome
-  use Chrome instead of the default Firefox browser for Web Traffic tests.
+use Chrome instead of the default Firefox browser for Web Traffic tests.
+
 --repeat  
-  Option on the ```all``` command. Will run the traffic in a loop, useful in a lab style enviroment. 
+Option on the ```all``` command. Will run the traffic in a loop, useful in a lab style enviroment. 
