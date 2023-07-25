@@ -26,28 +26,34 @@ FIT also requires that you have FireFox or Chrome installed. Use --chrome to use
 
 ![screenshot](https://github.com/ratava/fit/blob/main/screenshot.png)
 
+#Quick mode  
+Bye default FIT will not use a quick test mode. The following applies
+  iprep: 100 enties
+  vxvault: 100 entries
+  
+
 # Using FIT
+##Command Line
 python fit.py command [--option] 
 
-all - run all tests
-iprep - ip repulation
+##Commands
+all - run all tests  
+iprep - ip repulation test
+vxvault - vx vault malware url test
+malwareurls - urlhouse malware url test  
+appctrl - application control test  
+webtraffic - Good Web Traffic test
+wf - Web Filter Categoiries test
 
-vxvault - vx vault malware url list
-
-malwareurls - urlhouse malware url test
-
-appctrl - application control testing
-
-webtraffic - Good Web Traffic testing
-
---full 
-Run Test in full list mode. Default quick mode
+##Options
+--full
+  Run Test in full list mode. Default quick mode
 
 --srcip {ip} / -s {ip}  
-Let's you set the source IP used by fit. You can use multiple -s/--srcip to set multiple source IPs. This increases the number of clients seen. You will need to setup your network card to use a unique MAC per IP, or the reported results will not be as desiered.
+  Let's you set the source IP used by fit. You can use multiple -s/--srcip to set multiple source IPs. This increases the number of clients seen. You will need to setup your network card to use a unique MAC per IP, or the reported results will not be as desiered.
 
 --chrome
-use Chrome instead of the default Firefox browser for Web Traffic tests.
+  Use Chrome instead of the default Firefox browser for Web Traffic tests.
 
 --repeat  
-Option on the ```all``` command. Will run the traffic in a loop, useful in a lab style enviroment. 
+  Option on the ```all``` command. Will run the traffic in a loop, useful in a lab style enviroment. 
