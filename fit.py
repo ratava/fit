@@ -126,7 +126,7 @@ def all(repeat, srcip, full, chrome):
         _eicar()
         _appctrl(full)
         _wf(full)
-        #_webtraffic(full, chrome)
+        _webtraffic(full, chrome)
         if repeat == False:
             exit()
 
@@ -206,7 +206,7 @@ def _vxvault(srcip, full):
     if full:
       print(G + "[+] " + W + "We are full mode.")
       data = data2  
-    
+
     count = str(len(data))
     print(G + "[+] " + W + "Added " + count + " Online Malware URLs")
 
