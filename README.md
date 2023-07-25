@@ -29,10 +29,15 @@ FIT also requires that you have FireFox or Chrome installed. Use --chrome to use
 # Using FIT
 
 all - run all tests
+
 iprep - ip repulation
+
 vxvault - vx vault malware url list
+
 malwareurls - urlhouse malware url test
+
 appctrl - application control testing
+
 webtraffic - Good Web Traffic testing
 
 --full 
