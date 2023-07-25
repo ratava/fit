@@ -5,7 +5,8 @@ Author: Alex Harvey, @meshmeld,
 Updated IP Lists and various fixes/enhancements by Brent Wesley, @ratava, 07/2023
 
 IP Reputation Testing - firehol.org Webclient ip reputation list
-AV Testing - VX Vault/Eicar  
+AV Testing - VX Vault
+AV Testing - eicar.org
 WF blocking - Chrome Malicious Website list  
 Malware URL's - urlhaus.abuse.ch Last 30 days list
 APP Ctrl - Application control triggers  
@@ -45,6 +46,7 @@ python fit.py command [--option]
 all - run all tests  
 iprep - ip repulation  
 vxvault - vx vault malware url list  
+eicar - eicar.org mock virus download test  
 malwareurls - urlhouse malware url test  
 appctrl - application control testing  
 webtraffic - Good Web Traffic testing  

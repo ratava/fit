@@ -15,7 +15,7 @@ import platform
 # disable warnings in requests for cert bypass
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
-__version__ = 0.21
+__version__ = 0.22
 
 # some console colours
 W = '\033[0m'  # white (normal)
@@ -123,6 +123,7 @@ def all(repeat, srcip, full, chrome):
         _iprep(srcip, full)
         _vxvault(srcip, full)
         _malwareurls(srcip, full)
+        _eicar()
         _appctrl(full)
         _wf(full)
         #_webtraffic(full, chrome)
@@ -270,6 +271,21 @@ def _malwareurls(srcip, full):
                      r = requests.get(url, timeout=1)
              except requests.exceptions.RequestException:
                  pass
+
+@cli.command()
+def eicar():
+    ''' Trigger application control '''
+    _eicar()
+
+
+def _eicar():
+    '''  Firewall AV Eicar Test '''
+    # https://secure.eicar.org/eicar.com
+    # Only top 100 online classified urls are processed unless --full is specified
+    print(G + "[+] " + W + "EICAR Aintivirus Test")
+    print(G + "[+] " + W + "Fetching EICAR mock virus...", end=" ")
+    r = requests.get("https://secure.eicar.org/eicar.com", verify=False)
+    print (r)
 
 @cli.command()
 @click.option('--full', is_flag=True, help="Run in full list mode.")
