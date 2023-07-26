@@ -15,7 +15,7 @@ import platform
 # disable warnings in requests for cert bypass
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
-__version__ = 0.22
+__version__ = 0.23
 
 # some console colours
 W = '\033[0m'  # white (normal)
@@ -123,6 +123,7 @@ def all(repeat, srcip, full, chrome):
         _iprep(srcip, full)
         _vxvault(srcip, full)
         _malwareurls(srcip, full)
+        _badssl()
         _eicar()
         _appctrl(full)
         _wf(full)
@@ -258,6 +259,52 @@ def _malwareurls(srcip, full):
     
     count = str(len(data))
     print(G + "[+] " + W + "Added " + count + " Online Malware URLs")
+
+    if len(srcip) > 0:
+        print(G + "[+] " + W + "Multi source IP mode enabled")
+
+    with click.progressbar(data, label="Testing Malware Url's", length=len(data)) as urls:
+         for url in urls:
+             try:
+                 if len(srcip) > 0:
+                     r = setsrcip(srcip).get(url, timeout=1)
+                 else:
+                     r = requests.get(url, timeout=1)
+             except requests.exceptions.RequestException:
+                 pass
+
+@cli.command()
+@click.option('--srcip', '-s', multiple=True)
+def badssl(srcip):
+    '''  Malware URl/Domain test '''
+    checkips(srcip)
+    _badssl(srcip)
+
+
+def _badssl(srcip):
+    '''  Botnet SSL certificate check '''
+    # https://sslbl.abuse.ch/blacklist/sslipblacklist.csv
+    print(G + "[+] " + W + "Botnet Bad SSL Certs")
+    print(G + "[+] " + W + "Fetching Certificta Source list...", end=" ")
+    r = requests.get("https://sslbl.abuse.ch/blacklist/sslipblacklist.csv", verify=False)
+    print("Done")
+
+    # clean up list
+    data2 = []
+    data = r.text.split("\n")
+    for line in data:
+        if len(line) > 1:
+            if line[0] != "#":
+              line1 = line.replace("\"","")
+              split_line = line1.split(",")
+              ip = split_line[1]
+              port = split_line[2]
+              srcurl = ("https://",ip,":",port)
+              data2.append(srcurl)
+    data = data2  
+    
+    count = str(len(data))
+    print(G + "[+] " + W + "Added " + count + " Certifcate sources")
 
     if len(srcip) > 0:
         print(G + "[+] " + W + "Multi source IP mode enabled")
