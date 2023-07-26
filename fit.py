@@ -276,7 +276,7 @@ def _malwareurls(srcip, full):
 @cli.command()
 @click.option('--srcip', '-s', multiple=True)
 def badssl(srcip):
-    '''  Malware URl/Domain test '''
+    '''  Botnet SSL certificate check '''
     checkips(srcip)
     _badssl(srcip)
 
