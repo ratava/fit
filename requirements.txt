@@ -2,4 +2,5 @@ click>=8.1.6
 requests>=2.31.0
 requests_toolbelt
 selenium>=4.10.0
-
+urllib3~=2.0.4
+setuptools~=62.6.0
