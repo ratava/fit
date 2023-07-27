@@ -57,7 +57,7 @@ def banner():
 |   | ,'  '---'
 `----'
 Firewall Inspection Tester
-Author: Alex Harvey, @meshmeld, 
+Original Author: Alex Harvey, @meshmeld, 
 Updated IP Lists and various fixes/enhancements by Brent Wesley, @ratava, 07/2023""")
     print("Version: %0.2f\n" % __version__)
 
