@@ -15,7 +15,7 @@ import platform
 # disable warnings in requests for cert bypass
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
-__version__ = 0.24
+__version__ = 0.25
 
 # some console colours
 W = '\033[0m'  # white (normal)
@@ -82,6 +82,7 @@ def checkips(srcip):
             print(R + "[-] " + W + "IP Address " + ipaddr + " is not valid")
             exit(-1)
 
+
 def setsrcip(srcip):
     ''' Set a random source ip from a list '''
     ip = random.choice(srcip)
@@ -129,12 +130,12 @@ def all(repeat, srcip, full, chrome):
         _iprep(srcip, full)
         _vxvault(srcip, full)
         _malwareurls(srcip, full)
-        _badssl()
+        _badssl(srcip)
         _eicar()
         _appctrl(full)
         _wf(full)
         _webtraffic(full, chrome)
-        if repeat == False:
+        if not repeat:
             exit()
 
 
@@ -253,10 +254,10 @@ def _malwareurls(srcip, full):
     for line in data:
         if len(line) > 1:
             if line[0] != "#":
-              line1 = line.replace("\"","")
-              split_line = line1.split(",")
-              if split_line[3] == "online": 
-                data2.append(split_line[2])
+                line1 = line.replace("\"", "")
+                split_line = line1.split(",")
+                if split_line[3] == "online":
+                    data2.append(split_line[2])
     data = data2[:100]
 
     if full:
@@ -270,14 +271,14 @@ def _malwareurls(srcip, full):
         print(G + "[+] " + W + "Multi source IP mode enabled")
 
     with click.progressbar(data, label="Testing Malware Url's", length=len(data)) as urls:
-         for url in urls:
-             try:
-                 if len(srcip) > 0:
-                     r = setsrcip(srcip).get(url, timeout=1)
-                 else:
-                     r = requests.get(url, timeout=1)
-             except requests.exceptions.RequestException:
-                 pass
+    for url in urls:
+        try:
+            if len(srcip) > 0:
+                r = setsrcip(srcip).get(url, timeout=1)
+            else:
+                r = requests.get(url, timeout=1)
+        except requests.exceptions.RequestException:
+            pass
 
 @cli.command()
 @click.option('--srcip', '-s', multiple=True)
@@ -437,7 +438,7 @@ def _webtraffic(full, chrome):
       data = data2  
     
     count = str(len(data))
-    print(G + "[+] " + W + "Added " + count + " Testing URL's")
+    print(G + "[+] " + W + "Added " + count + " Testing URLs")
 
     with click.progressbar(data, label="Generating Traffic", length=len(data)) as urls:
         for url in urls:
