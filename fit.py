@@ -15,7 +15,7 @@ import platform
 # disable warnings in requests for cert bypass
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
-__version__ = 0.23
+__version__ = 0.24
 
 # some console colours
 W = '\033[0m'  # white (normal)
@@ -90,9 +90,10 @@ def setsrcip(srcip):
     s.mount("https://", requests_toolbelt.adapters.source.SourceAddressAdapter(ip))
     return s
 
-
 @click.group(chain=True)
-def cli():
+@click.option('--full', is_flag=True, help="Run in full list mode.", show_default=True, default=False)
+@click.option('--chrome', is_flag=True, help="Run Website tests in Chrome instead of FireFox.")
+def cli(full, chrome):
     banner()
     if checkconnection():
         print(G + "[+] " + W + "Network connection is okay")
@@ -101,11 +102,16 @@ def cli():
         print(R + "[!] " + W + "Please verify the network connection")
         exit(-1)
 
+@cli.command()
+def version():
+    '''Show the current version'''
+    return
+
 
 @cli.command()
 @click.option('--repeat/--no-repeat', default=False)
 @click.option('--srcip', '-s', multiple=True)
-@click.option('--full', is_flag=True, help="Run in full list mode.")
+@click.option('--full', is_flag=True, help="Run in full list mode.", show_default=True, default=False)
 @click.option('--chrome', is_flag=True, help="Run Website tests in Chrome instead of FireFox.")
 def all(repeat, srcip, full, chrome):
     '''Run all test one after the other'''
