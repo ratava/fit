@@ -94,8 +94,8 @@ def setsrcip(srcip):
 @click.group(chain=True)
 @click.option('--full', is_flag=True, help="Run in full list mode.", show_default=True, default=False)
 @click.option('--chrome', is_flag=True, help="Run Website tests in Chrome instead of FireFox.")
-def cli():
-    banner()
+def cli(full, chrome):
+    banner()    
     if checkconnection():
         print(G + "[+] " + W + "Network connection is okay")
     else:
@@ -430,7 +430,6 @@ def _webtraffic(full, chrome):
     f = open("goodurl.csv", 'r')
     lines = f.read()
     print("Done")
-
 
     data2 = lines.split("\n")
     data = data2[:20]
