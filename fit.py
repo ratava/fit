@@ -7,7 +7,7 @@ import requests_toolbelt
 import telnetlib
 import socket
 import random
-from requests.packages.urllib3.exceptions import InsecureRequestWarning
+from urllib3.exceptions import InsecureRequestWarning
 from selenium import webdriver
 import selenium
 import platform
@@ -271,14 +271,14 @@ def _malwareurls(srcip, full):
         print(G + "[+] " + W + "Multi source IP mode enabled")
 
     with click.progressbar(data, label="Testing Malware Url's", length=len(data)) as urls:
-    for url in urls:
-        try:
-            if len(srcip) > 0:
-                r = setsrcip(srcip).get(url, timeout=1)
-            else:
-                r = requests.get(url, timeout=1)
-        except requests.exceptions.RequestException:
-            pass
+      for url in urls:
+          try:
+              if len(srcip) > 0:
+                  r = setsrcip(srcip).get(url, timeout=1)
+              else:
+                  r = requests.get(url, timeout=1)
+          except requests.exceptions.RequestException:
+              pass
 
 @cli.command()
 @click.option('--srcip', '-s', multiple=True)
