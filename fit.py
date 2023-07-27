@@ -28,19 +28,18 @@ C = '\033[36m'  # cyan
 GR = '\033[37m'  # gray
 
 if platform.system() == "Windows":
-	W = ''  # white (normal)
-	R = ''  # red
-	G = ''  # green
-	O = ''  # orange
-	B = ''  # blue
-	P = ''  # purple
-	C = ''  # cyan
-	GR = ''  # gray
-
+    W = ''  # white (normal)
+    R = ''  # red
+    G = ''  # green
+    O = ''  # orange
+    B = ''  # blue
+    P = ''  # purple
+    C = ''  # cyan
+    GR = ''  # gray
 
 
 def banner():
-    '''Print stylized banner'''
+    """Print stylized banner"""
     print(r"""
                           ,----,
                         ,/   .`|
@@ -64,10 +63,10 @@ Updated IP Lists and various fixes/enhancements by Brent Wesley, @ratava, 07/202
 
 
 def checkconnection():
-    ''' check network connection '''
+    """ check network connection """
     try:
-        r = requests.get("https://www.google.ca", verify=False)
-    except:
+        requests.get("https://www.google.ca", verify=False)
+    except requests.exceptions.RequestException:
         return False
     else:
         return True
@@ -84,17 +83,18 @@ def checkips(srcip):
 
 
 def setsrcip(srcip):
-    ''' Set a random source ip from a list '''
+    """ Set a random source ip from a list """
     ip = random.choice(srcip)
     s = requests.Session()
     s.mount("http://", requests_toolbelt.adapters.source.SourceAddressAdapter(ip))
     s.mount("https://", requests_toolbelt.adapters.source.SourceAddressAdapter(ip))
     return s
 
+
 @click.group(chain=True)
 @click.option('--full', is_flag=True, help="Run in full list mode.", show_default=True, default=False)
 @click.option('--chrome', is_flag=True, help="Run Website tests in Chrome instead of FireFox.")
-def cli(full, chrome):
+def cli():
     banner()
     if checkconnection():
         print(G + "[+] " + W + "Network connection is okay")
@@ -103,9 +103,10 @@ def cli(full, chrome):
         print(R + "[!] " + W + "Please verify the network connection")
         exit(-1)
 
+
 @cli.command()
 def version():
-    '''Show the current version'''
+    """Show the current version"""
     return
 
 
@@ -115,19 +116,19 @@ def version():
 @click.option('--full', is_flag=True, help="Run in full list mode.", show_default=True, default=False)
 @click.option('--chrome', is_flag=True, help="Run Website tests in Chrome instead of FireFox.")
 def all(repeat, srcip, full, chrome):
-    '''Run all test one after the other'''
+    """Run all test one after the other"""
     checkips(srcip)
     if repeat:
         print(G + "[+] " + W + "Repeat, repeat, repeat...")
 
     if not full:
-      print(G + "[+] " + W + "Running in quick mode. Use --full to override")
+        print(G + "[+] " + W + "Running in quick mode. Use --full to override")
 
     if not chrome:
-      print(G + "[+] " + W + "FireFox will be used for Web Traffic testing. Use --chrome to use Chrome")
+        print(G + "[+] " + W + "FireFox will be used for Web Traffic testing. Use --chrome to use Chrome")
 
     while True:
-        _iprep(srcip, full)
+        _iprep(full)
         _vxvault(srcip, full)
         _malwareurls(srcip, full)
         _badssl(srcip)
@@ -140,16 +141,14 @@ def all(repeat, srcip, full, chrome):
 
 
 @cli.command()
-@click.option('--srcip', '-s', multiple=True)
 @click.option('--full', is_flag=True, help="Run in full list mode.")
-def iprep(srcip, full):
-    '''IP Reputation test using zeustracker uiplist'''
-    checkips(srcip)
-    _iprep(srcip, full)
+def iprep(full):
+    """IP Reputation test using zeustracker uiplist"""
+    _iprep(full)
 
 
-def _iprep(srcip, full):
-    '''IP Reputation test using firehol.org webclient'''
+def _iprep(full):
+    """IP Reputation test using firehol.org webclient"""
     # https://iplists.firehol.org/files/firehol_webclient.netset
     print(G + "[+] " + W + "IP Reputation Test")
     print(G + "[+] " + W + "Fetching bad ip list...", end=" ")
@@ -162,21 +161,21 @@ def _iprep(srcip, full):
     for line in data:
         if len(line) > 1:
             if line[0] != "#":
-              if line.count('/') == 0:
-                data2.append(line)
+                if line.count('/') == 0:
+                    data2.append(line)
     data = data2[:100]
 
     if full:
-      print(G + "[+] " + W + "We are full mode.")
-      data = data2  
-    
+        print(G + "[+] " + W + "We are full mode.")
+        data = data2
+
     count = str(len(data))
     print(G + "[+] " + W + "Added " + count + " Reputation IP's")
 
     with click.progressbar(data, label="Checking IP's", length=len(data)) as ips:
         for ip in ips:
             try:
-                tn = telnetlib.Telnet(ip, 443, 1)
+                telnetlib.Telnet(ip, 443, 1)
             except (socket.timeout, socket.error, ConnectionRefusedError):
                 pass
 
@@ -185,13 +184,13 @@ def _iprep(srcip, full):
 @click.option('--srcip', '-s', multiple=True)
 @click.option('--full', is_flag=True, help="Run in full list mode.")
 def vxvault(srcip, full):
-    '''Malware samples download from vxvault'''
+    """Malware samples download from vxvault"""
     checkips(srcip)
     _vxvault(srcip, full)
 
 
 def _vxvault(srcip, full):
-    '''Malware samples download from vxvault'''
+    """Malware samples download from vxvault"""
     # http://vxvault.net/URL_List.php
     print(G + "[+] " + W + "VX Vault Malware Downloads")
     print(G + "[+] " + W + "Fetching VXVault list...", end=" ")
@@ -208,24 +207,23 @@ def _vxvault(srcip, full):
         if len(line) > 1:
             if line[0] == "h":
                 data2.append(line)
-    
+
     data = data2[:100]
 
     if full:
-      print(G + "[+] " + W + "We are full mode.")
-      data = data2  
+        print(G + "[+] " + W + "We are full mode.")
+        data = data2
 
     count = str(len(data))
     print(G + "[+] " + W + "Added " + count + " Online Malware URLs")
 
-
-    with click.progressbar(data, label="Testing Malware Url's", length=len(data)) as urls:
+    with click.progressbar(data, label="Testing Malware URLs", length=len(data)) as urls:
         for url in urls:
             try:
                 if len(srcip) > 0:
-                    r = setsrcip(srcip).get(url, timeout=1)
+                    setsrcip(srcip).get(url, timeout=1)
                 else:
-                    r = requests.get(url, timeout=1)
+                    requests.get(url, timeout=1)
             except requests.exceptions.RequestException:
                 pass
 
@@ -234,13 +232,13 @@ def _vxvault(srcip, full):
 @click.option('--srcip', '-s', multiple=True)
 @click.option('--full', is_flag=True, help="Run in full list mode.")
 def malwareurls(srcip, full):
-    '''  Malware URl/Domain test '''
+    """  Malware URl/Domain test """
     checkips(srcip)
     _malwareurls(srcip, full)
 
 
 def _malwareurls(srcip, full):
-    '''  Malware URl/Domain test '''
+    """  Malware URl/Domain test """
     # https://urlhaus.abuse.ch/downloads/csv_recent/
     # Only top 100 online classified urls are processed unless --full is specified
     print(G + "[+] " + W + "Malware URL Downloads")
@@ -261,38 +259,39 @@ def _malwareurls(srcip, full):
     data = data2[:100]
 
     if full:
-      print(G + "[+] " + W + "We are full mode.")
-      data = data2  
-    
+        print(G + "[+] " + W + "We are full mode.")
+        data = data2
+
     count = str(len(data))
     print(G + "[+] " + W + "Added " + count + " Online Malware URLs")
 
     if len(srcip) > 0:
         print(G + "[+] " + W + "Multi source IP mode enabled")
 
-    with click.progressbar(data, label="Testing Malware Url's", length=len(data)) as urls:
-      for url in urls:
-          try:
-              if len(srcip) > 0:
-                  r = setsrcip(srcip).get(url, timeout=1)
-              else:
-                  r = requests.get(url, timeout=1)
-          except requests.exceptions.RequestException:
-              pass
+    with click.progressbar(data, label="Testing Malware URLs", length=len(data)) as urls:
+        for url in urls:
+            try:
+                if len(srcip) > 0:
+                    setsrcip(srcip).get(url, timeout=1)
+                else:
+                    requests.get(url, timeout=1)
+            except requests.exceptions.RequestException:
+                pass
+
 
 @cli.command()
 @click.option('--srcip', '-s', multiple=True)
 def badssl(srcip):
-    '''  Botnet SSL certificate check '''
+    """  Botnet SSL certificate check """
     checkips(srcip)
     _badssl(srcip)
 
 
 def _badssl(srcip):
-    '''  Botnet SSL certificate check '''
+    """  Botnet SSL certificate check """
     # https://sslbl.abuse.ch/blacklist/sslipblacklist.csv
     print(G + "[+] " + W + "Botnet Bad SSL Certs")
-    print(G + "[+] " + W + "Fetching Certificta Source list...", end=" ")
+    print(G + "[+] " + W + "Fetching Certificate Source list...", end=" ")
     r = requests.get("https://sslbl.abuse.ch/blacklist/sslipblacklist.csv", verify=False)
     print("Done")
 
@@ -302,55 +301,57 @@ def _badssl(srcip):
     for line in data:
         if len(line) > 1:
             if line[0] != "#":
-              line1 = line.replace("\"","")
-              split_line = line1.split(",")
-              ip = split_line[1]
-              port = split_line[2]
-              srcurl = ("https://",ip,":",port)
-              data2.append(srcurl)
-    data = data2  
-    
+                line1 = line.replace("\"", "")
+                split_line = line1.split(",")
+                ip = split_line[1]
+                port = split_line[2]
+                srcurl = ("https://", ip, ":", port)
+                data2.append(srcurl)
+    data = data2
+
     count = str(len(data))
-    print(G + "[+] " + W + "Added " + count + " Certifcate sources")
+    print(G + "[+] " + W + "Added " + count + " Certificate sources")
 
     if len(srcip) > 0:
         print(G + "[+] " + W + "Multi source IP mode enabled")
 
-    with click.progressbar(data, label="Testing Malware Url's", length=len(data)) as urls:
-         for url in urls:
-             try:
-                 if len(srcip) > 0:
-                     r = setsrcip(srcip).get(url, timeout=1)
-                 else:
-                     r = requests.get(url, timeout=1)
-             except requests.exceptions.RequestException:
-                 pass
+    with click.progressbar(data, label="Testing Malware URLs", length=len(data)) as urls:
+        for url in urls:
+            try:
+                if len(srcip) > 0:
+                    setsrcip(srcip).get(url, timeout=1)
+                else:
+                    requests.get(url, timeout=1)
+            except requests.exceptions.RequestException:
+                pass
+
 
 @cli.command()
 def eicar():
-    ''' Trigger application control '''
+    """ Trigger application control """
     _eicar()
 
 
 def _eicar():
-    '''  Firewall AV Eicar Test '''
+    """  Firewall AV Eicar Test """
     # https://secure.eicar.org/eicar.com
     # Only top 100 online classified urls are processed unless --full is specified
-    print(G + "[+] " + W + "EICAR Aintivirus Test")
+    print(G + "[+] " + W + "EICAR Antivirus Test")
     print(G + "[+] " + W + "Fetching EICAR mock virus...", end=" ")
     r = requests.get("https://secure.eicar.org/eicar.com", verify=False)
-    print (r)
+    print(r)
+
 
 @cli.command()
 @click.option('--full', is_flag=True, help="Run in full list mode.")
 def appctrl(full):
-    ''' Trigger application control '''
+    """ Trigger application control """
     _appctrl(full)
 
 
 def _appctrl(full):
-    ''' Trigger application control '''
-    print(G + "[+] " + W + "Application Congtrol")
+    """ Trigger application control """
+    print(G + "[+] " + W + "Application Control")
     print(G + "[+] " + W + "Fetching AppCtrl list...", end=" ")
     f = open("appctrl.csv", 'r')
     lines = f.read()
@@ -359,16 +360,16 @@ def _appctrl(full):
     data2 = lines.split("\n")
     data = data2[:20]
     if full:
-      print(G + "[+] " + W + "We are full mode.")
-      data = data2  
-    
+        print(G + "[+] " + W + "We are full mode.")
+        data = data2
+
     count = str(len(data))
-    print(G + "[+] " + W + "Added " + count + " Testing URL's")
+    print(G + "[+] " + W + "Added " + count + " Testing URLs")
 
     with click.progressbar(data, label="Triggering Categories", length=len(data)) as urls:
         for url in urls:
             try:
-                r = requests.get(url, timeout=1)
+                requests.get(url, timeout=1)
             except requests.exceptions.RequestException:
                 pass
 
@@ -376,12 +377,12 @@ def _appctrl(full):
 @cli.command()
 @click.option('--full', is_flag=True, help="Run in full list mode.")
 def wf(full):
-    '''  URL categorisation trigger '''
+    """  URL categorisation trigger """
     _wf(full)
 
 
 def _wf(full):
-    '''  URL categorisation trigger '''
+    """  URL categorisation trigger """
     # http://www.malwaredomainlist.com/mdlcsv.php
     print(G + "[+] " + W + "WF categorisation trigger")
     print(G + "[+] " + W + "Fetching URL list...", end=" ")
@@ -393,16 +394,16 @@ def _wf(full):
     data2 = lines.split("\n")
     data = data2[:100]
     if full:
-      print(G + "[+] " + W + "We are full mode.")
-      data = data2  
-    
+        print(G + "[+] " + W + "We are full mode.")
+        data = data2
+
     count = str(len(data))
-    print(G + "[+] " + W + "Added " + count + " Testing URL's")
+    print(G + "[+] " + W + "Added " + count + " Testing URLs")
 
     with click.progressbar(data, label="Triggering URL Categories.", length=len(data)) as urls:
         for url in urls:
             try:
-                r = requests.get(url, timeout=1)
+                requests.get(url, timeout=1)
             except requests.exceptions.RequestException:
                 pass
 
@@ -411,16 +412,16 @@ def _wf(full):
 @click.option('--full', is_flag=True, help="Run in full list mode.")
 @click.option('--chrome', is_flag=True, help="Run Website tests in Chrome instead of FireFox.")
 def webtraffic(full, chrome):
-    ''' Generate good web traffic '''
+    """ Generate good web traffic """
     _webtraffic(full, chrome)
 
 
 def _webtraffic(full, chrome):
-    if chrome: 
-      driver = webdriver.Chrome()
+    if chrome:
+        driver = webdriver.Chrome()
     else:
-      driver = webdriver.Firefox()
-      print(G + "[+] " + W + "FireFox will be used for Web Traffic testing. Use --chrome to use Chrome")
+        driver = webdriver.Firefox()
+        print(G + "[+] " + W + "FireFox will be used for Web Traffic testing. Use --chrome to use Chrome")
     driver.set_window_size(1920, 1080)
     driver.set_page_load_timeout(10)
 
@@ -434,9 +435,9 @@ def _webtraffic(full, chrome):
     data2 = lines.split("\n")
     data = data2[:20]
     if full:
-      print(G + "[+] " + W + "We are full mode.")
-      data = data2  
-    
+        print(G + "[+] " + W + "We are full mode.")
+        data = data2
+
     count = str(len(data))
     print(G + "[+] " + W + "Added " + count + " Testing URLs")
 
