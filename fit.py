@@ -8,7 +8,6 @@ import telnetlib
 import socket
 import random
 from urllib3.exceptions import InsecureRequestWarning
-#from selenium import webdriver
 import selenium
 import logging
 from selenium import webdriver
@@ -18,6 +17,7 @@ from selenium.webdriver.chrome.options import Options
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 __version__ = 0.30
+
 
 def banner():
     """Print stylized banner"""
@@ -38,8 +38,8 @@ def banner():
 |   | ,'  '---'
 `----'
 Firewall Inspection Tester
-Original Author: Alex Harvey, @meshmeld, 
-Updated IP Lists and various fixes/enhancements by Brent Wesley, @ratava, 07/2023""")
+Original Author: Alex Harvey, @meshmeld,
+Updated IP Lists and various fixes/enhancements by Brent Wesley, @ratava""")
     print("Version: %0.2f\n" % __version__)
 
 
@@ -67,17 +67,19 @@ def setsrcip(srcip):
     """ Set a random source ip from a list """
     ip = random.choice(srcip)
     s = requests.Session()
-    s.mount("http://", requests_toolbelt.adapters.source.SourceAddressAdapter(ip))
-    s.mount("https://", requests_toolbelt.adapters.source.SourceAddressAdapter(ip))
+    s.mount("http://",
+            requests_toolbelt.adapters.source.SourceAddressAdapter(ip))
+    s.mount("https://",
+            requests_toolbelt.adapters.source.SourceAddressAdapter(ip))
     return s
 
 
 def setLogging():
     logging.basicConfig(level=logging.DEBUG,
-                    format='%(asctime)s %(name)-12s %(message)s',
-                    datefmt='%m-%d %H:%M',
-                    filename="fit.log",
-                    filemode='w')
+                        format='%(asctime)s %(name)-12s %(message)s',
+                        datefmt='%m-%d %H:%M',
+                        filename="fit.log",
+                        filemode='w')
     console = logging.StreamHandler()
     console.setLevel(logging.INFO)
     formatter = logging.Formatter('%(message)s')
@@ -90,7 +92,7 @@ def setLogging():
 
 malwareurlsLogger = logging.getLogger('fit.malwareurls')
 appctrlLogger = logging.getLogger('fit.appctrl')
-badsslLogger = logging.getLogger('fit.badssl')        
+badsslLogger = logging.getLogger('fit.badssl')
 eicarLogger = logging.getLogger('fit.eicar')
 iprepLogger = logging.getLogger('fit.iprep')
 webtrafficLogger = logging.getLogger('fit.webtraffic')
@@ -99,9 +101,9 @@ vxvaultLogger = logging.getLogger('fit.vxvault')
 
 
 @click.group(chain=True)
-@click.option('--full', is_flag=True, help="Run in full list mode.", 
+@click.option('--full', is_flag=True, help="Run in full list mode.",
               show_default=True, default=False)
-@click.option('--chrome', is_flag=True, 
+@click.option('--chrome', is_flag=True,
               help="Run Website tests in Chrome instead of FireFox.")
 def cli(full, chrome):
     banner()
@@ -123,9 +125,9 @@ def version():
 @cli.command()
 @click.option('--repeat/--no-repeat', default=False)
 @click.option('--srcip', '-s', multiple=True)
-@click.option('--full', is_flag=True, help="Run in full list mode.", show_default=True, 
-              default=False)
-@click.option('--chrome', is_flag=True, 
+@click.option('--full', is_flag=True, help="Run in full list mode.",
+              show_default=True, default=False)
+@click.option('--chrome', is_flag=True,
               help="Run Website tests in Chrome instead of FireFox.")
 def all(repeat, srcip, full, chrome):
     """Run all test one after the other"""
@@ -164,8 +166,8 @@ def _iprep(full):
     # https://iplists.firehol.org/files/firehol_webclient.netset
     iprepLogger.info("[+] IP Reputation Test")
     iprepLogger.info("[+] Fetching bad ip list...")
-    r = requests.get("https://iplists.firehol.org/files/firehol_webclient.netset", 
-                     verify=False)
+    source = "https://iplists.firehol.org/files/firehol_webclient.netset"
+    r = requests.get(source, verify=False)
     iprepLogger.info("[+] Done")
 
     # clean up list
@@ -185,7 +187,8 @@ def _iprep(full):
     count = str(len(data))
     iprepLogger.info("[+] Added %s Reputation IP's", count)
 
-    with click.progressbar(data, label="Checking IP's", length=len(data)) as ips:
+    with click.progressbar(data, label="Checking IP's",
+                           length=len(data)) as ips:
         for ip in ips:
             iprepLogger.debug("Checking %s", ip)
             try:
@@ -233,7 +236,8 @@ def _vxvault(srcip, full):
     count = str(len(data))
     vxvaultLogger.info("[+] Added %s Online Malware URLs", count)
 
-    with click.progressbar(data, label="Testing Malware URL", length=len(data)) as urls:
+    with click.progressbar(data, label="Testing Malware URL",
+                           length=len(data)) as urls:
         for url in urls:
             try:
                 if len(srcip) > 0:
@@ -258,11 +262,13 @@ def malwareurls(srcip, full):
 def _malwareurls(srcip, full):
     """  Malware URl/Domain test """
     # https://urlhaus.abuse.ch/downloads/csv_recent/
-    # Only top 100 online classified urls are processed unless --full is specifie
+    # Only top 100 online classified urls are processed unless --full is
+    # specified
 
     malwareurlsLogger.info("[+] Malware URL Downloads")
     malwareurlsLogger.info("[+] Fetching Malware URL list...")
-    r = requests.get("https://urlhaus.abuse.ch/downloads/csv_recent/", verify=False)
+    r = requests.get("https://urlhaus.abuse.ch/downloads/csv_recent/",
+                     verify=False)
     malwareurlsLogger.info("[+] Done")
 
     # clean up list
@@ -287,7 +293,8 @@ def _malwareurls(srcip, full):
     if len(srcip) > 0:
         malwareurlsLogger.info("[+] Multi source IP mode enabled")
 
-    with click.progressbar(data, label="Testing Malware URL", length=len(data)) as urls:
+    with click.progressbar(data, label="Testing Malware URL",
+                           length=len(data)) as urls:
         for url in urls:
             try:
                 if len(srcip) > 0:
@@ -313,7 +320,7 @@ def _badssl(srcip):
     # https://sslbl.abuse.ch/blacklist/sslipblacklist.csv
     badsslLogger.info("[+] Botnet Bad SSL Certs")
     badsslLogger.info("[+] Fetching Certificate Source list...")
-    r = requests.get("https://sslbl.abuse.ch/blacklist/sslipblacklist.csv", 
+    r = requests.get("https://sslbl.abuse.ch/blacklist/sslipblacklist.csv",
                      verify=False)
     badsslLogger.info("[+] Done")
 
@@ -337,7 +344,8 @@ def _badssl(srcip):
     if len(srcip) > 0:
         badsslLogger.info("[+] Multi source IP mode enabled")
 
-    with click.progressbar(data, label="Testing SSL Cert", length=len(data)) as urls:
+    with click.progressbar(data, label="Testing SSL Cert",
+                           length=len(data)) as urls:
         for url in urls:
             try:
                 if len(srcip) > 0:
@@ -348,7 +356,6 @@ def _badssl(srcip):
                 badsslLogger.debug(f"Checking {url} Blocked {r}")
             else:
                 badsslLogger.debug(f"Checking {url} Allowed {r}")
-                
 
 
 @cli.command()
@@ -360,7 +367,8 @@ def eicar():
 def _eicar():
     """  Firewall AV Eicar Test """
     # https://secure.eicar.org/eicar.com
-    # Only top 100 online classified urls are processed unless --full is specified
+    # Only top 100 online classified urls are processed unless --full is
+    # specified
     eicarLogger.info("[+] EICAR Antivirus Test")
     eicarLogger.info("[+] Fetching EICAR mock virus...")
     url = "https://secure.eicar.org/eicar.com"
@@ -369,7 +377,7 @@ def _eicar():
     except requests.exceptions.RequestException:
         eicarLogger.debug(f"Checking {url} Blocked {r}")
     else:
-        eicarLogger.info(f"Checking {url} Allowed {r}")    
+        eicarLogger.info(f"Checking {url} Allowed {r}")
 
 
 @cli.command()
@@ -397,7 +405,7 @@ def _appctrl(full):
     count = str(len(data))
     appctrlLogger.info(f"[+] Added {count} Testing URLs")
 
-    with click.progressbar(data, label="Triggering Categories", 
+    with click.progressbar(data, label="Triggering Categories",
                            length=len(data)) as urls:
         for url in urls:
             try:
@@ -433,7 +441,7 @@ def _wf(full):
     count = str(len(data))
     wfLogger.info("[+] Added %s Testing URLs", count)
 
-    with click.progressbar(data, label="Triggering URL Categories.", 
+    with click.progressbar(data, label="Triggering URL Categories.",
                            length=len(data)) as urls:
         for url in urls:
             try:
@@ -441,12 +449,12 @@ def _wf(full):
             except requests.exceptions.RequestException:
                 wfLogger.debug(f"Checking {url} Blocked")
             else:
-                wfLogger.debug(f"Checking {url} Allowed")                
+                wfLogger.debug(f"Checking {url} Allowed")
 
 
 @cli.command()
 @click.option('--full', is_flag=True, help="Run in full list mode.")
-@click.option('--chrome', is_flag=True, 
+@click.option('--chrome', is_flag=True,
               help="Run Website tests in Chrome instead of FireFox.")
 def webtraffic(full, chrome):
     """ Generate good web traffic """
@@ -466,7 +474,7 @@ def _webtraffic(full, chrome):
         options = webdriver.FirefoxOptions()
         options.page_load_strategy = 'eager'
         driver = webdriver.Firefox(options=options)
-        
+
     driver.set_window_size(1920, 1080)
     driver.set_page_load_timeout(10)
 
@@ -484,7 +492,8 @@ def _webtraffic(full, chrome):
     count = str(len(data))
     webtrafficLogger.info(f"[+]  Added {count} Testing URLs")
 
-    with click.progressbar(data, label="Generating Traffic", length=len(data)) as urls:
+    with click.progressbar(data, label="Generating Traffic",
+                           length=len(data)) as urls:
         for url in urls:
             try:
                 driver.get("https://www.%s" % url)
@@ -493,7 +502,7 @@ def _webtraffic(full, chrome):
             except selenium.common.exceptions.WebDriverException:
                 webtrafficLogger.debug(f"Checking {url} Error")
             else:
-                webtrafficLogger.debug(f"Accessing {url} Opened")  
+                webtrafficLogger.debug(f"Accessing {url} Opened")
     driver.quit()
 
 
