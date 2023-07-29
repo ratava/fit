@@ -8,14 +8,17 @@ import telnetlib
 import socket
 import random
 from urllib3.exceptions import InsecureRequestWarning
-from selenium import webdriver
+#from selenium import webdriver
 import selenium
 import platform
+import logging
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 
 # disable warnings in requests for cert bypass
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
-__version__ = 0.25
+__version__ = 0.30
 
 # some console colours
 W = '\033[0m'  # white (normal)
@@ -91,16 +94,43 @@ def setsrcip(srcip):
     return s
 
 
+def setLogging():
+    logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s %(name)-12s %(message)s',
+                    datefmt='%m-%d %H:%M',
+                    filename="fit.log",
+                    filemode='w')
+    console = logging.StreamHandler()
+    console.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(message)s')
+    console.setFormatter(formatter)
+    logging.getLogger().addHandler(console)
+    logging.getLogger("requests").setLevel(logging.WARNING)
+    logging.getLogger("urllib3").setLevel(logging.WARNING)
+    logging.getLogger("charset_normalizer").setLevel(logging.WARNING)
+
+
+malwareurlsLogger = logging.getLogger('fit.malwareurls')
+appctrlLogger = logging.getLogger('fit.appctrl')
+badsslLogger = logging.getLogger('fit.badssl')        
+eicarLogger = logging.getLogger('fit.eicar')
+iprepLogger = logging.getLogger('fit.iprep')
+webtrafficLogger = logging.getLogger('fit.webtraffic')
+wfLogger = logging.getLogger('fit.wf')
+vxvaultLogger = logging.getLogger('fit.vxvault')
+
+
 @click.group(chain=True)
 @click.option('--full', is_flag=True, help="Run in full list mode.", show_default=True, default=False)
 @click.option('--chrome', is_flag=True, help="Run Website tests in Chrome instead of FireFox.")
 def cli(full, chrome):
-    banner()    
+    banner()
+    setLogging()
     if checkconnection():
-        print(G + "[+] " + W + "Network connection is okay")
+        logging.info("[+] Network connection is okay")
     else:
-        print(R + "[!] " + W + "Network connection failed")
-        print(R + "[!] " + W + "Please verify the network connection")
+        logging.info("[!] Network connection failed")
+        logging.info("[!] Please verify the network connection")
         exit(-1)
 
 
@@ -119,13 +149,13 @@ def all(repeat, srcip, full, chrome):
     """Run all test one after the other"""
     checkips(srcip)
     if repeat:
-        print(G + "[+] " + W + "Repeat, repeat, repeat...")
+        logging.info("Running All test on Repeat")
 
     if not full:
-        print(G + "[+] " + W + "Running in quick mode. Use --full to override")
+        logging.info(G + "[+] " + W + "Running in quick mode. Use --full to override")
 
     if not chrome:
-        print(G + "[+] " + W + "FireFox will be used for Web Traffic testing. Use --chrome to use Chrome")
+        logging.info(G + "[+] " + W + "FireFox will be used for Web Traffic testing. Use --chrome to use Chrome")
 
     while True:
         _iprep(full)
@@ -150,10 +180,10 @@ def iprep(full):
 def _iprep(full):
     """IP Reputation test using firehol.org webclient"""
     # https://iplists.firehol.org/files/firehol_webclient.netset
-    print(G + "[+] " + W + "IP Reputation Test")
-    print(G + "[+] " + W + "Fetching bad ip list...", end=" ")
+    iprepLogger.info("[+] IP Reputation Test")
+    iprepLogger.info("[+] Fetching bad ip list...")
     r = requests.get("https://iplists.firehol.org/files/firehol_webclient.netset", verify=False)
-    print("Done")
+    iprepLogger.info("[+] Done")
 
     # clean up list
     data2 = []
@@ -166,18 +196,21 @@ def _iprep(full):
     data = data2[:100]
 
     if full:
-        print(G + "[+] " + W + "We are full mode.")
+        iprepLogger.info("[+] We are full mode.")
         data = data2
 
     count = str(len(data))
-    print(G + "[+] " + W + "Added " + count + " Reputation IP's")
+    iprepLogger.info("[+] Added %s Reputation IP's", count)
 
     with click.progressbar(data, label="Checking IP's", length=len(data)) as ips:
         for ip in ips:
+            iprepLogger.debug("Checking %s", ip)
             try:
                 telnetlib.Telnet(ip, 443, 1)
             except (socket.timeout, socket.error, ConnectionRefusedError):
-                pass
+                iprepLogger.debug("Blocked")
+            else:
+                iprepLogger.debug("Open")
 
 
 @cli.command()
@@ -192,10 +225,10 @@ def vxvault(srcip, full):
 def _vxvault(srcip, full):
     """Malware samples download from vxvault"""
     # http://vxvault.net/URL_List.php
-    print(G + "[+] " + W + "VX Vault Malware Downloads")
-    print(G + "[+] " + W + "Fetching VXVault list...", end=" ")
+    vxvaultLogger.info("[+] VX Vault Malware Downloads")
+    vxvaultLogger.info("[+] Fetching VXVault list...")
     r = requests.get("http://vxvault.net/URL_List.php", timeout=10)
-    print("Done")
+    vxvaultLogger.info("[+] Done")
 
     if len(srcip) > 0:
         print(G + "[+] " + W + "Multi source IP mode enabled")
@@ -211,21 +244,23 @@ def _vxvault(srcip, full):
     data = data2[:100]
 
     if full:
-        print(G + "[+] " + W + "We are full mode.")
+        vxvaultLogger.info("[+] We are full mode.")
         data = data2
 
     count = str(len(data))
-    print(G + "[+] " + W + "Added " + count + " Online Malware URLs")
+    vxvaultLogger.info("[+] Added %s Online Malware URLs", count)
 
     with click.progressbar(data, label="Testing Malware URLs", length=len(data)) as urls:
         for url in urls:
             try:
                 if len(srcip) > 0:
-                    setsrcip(srcip).get(url, timeout=1)
+                    r = setsrcip(srcip).get(url, timeout=1)
                 else:
-                    requests.get(url, timeout=1)
+                    r = requests.get(url, timeout=1)
             except requests.exceptions.RequestException:
-                pass
+                vxvaultLogger.debug("Testing %s Blocked %s", url, r)
+            else:
+                vxvaultLogger.debug("Testing %s Allowed %s", url, r)
 
 
 @cli.command()
@@ -240,11 +275,12 @@ def malwareurls(srcip, full):
 def _malwareurls(srcip, full):
     """  Malware URl/Domain test """
     # https://urlhaus.abuse.ch/downloads/csv_recent/
-    # Only top 100 online classified urls are processed unless --full is specified
-    print(G + "[+] " + W + "Malware URL Downloads")
-    print(G + "[+] " + W + "Fetching Malware URL list...", end=" ")
+    # Only top 100 online classified urls are processed unless --full is specifie
+
+    malwareurlsLogger.info("[+] Malware URL Downloads")
+    malwareurlsLogger.info("[+] Fetching Malware URL list...")
     r = requests.get("https://urlhaus.abuse.ch/downloads/csv_recent/", verify=False)
-    print("Done")
+    malwareurlsLogger.info("[+] Done")
 
     # clean up list
     data2 = []
@@ -259,24 +295,26 @@ def _malwareurls(srcip, full):
     data = data2[:100]
 
     if full:
-        print(G + "[+] " + W + "We are full mode.")
+        malwareurlsLogger.info("[+] We are full mode.")
         data = data2
 
     count = str(len(data))
-    print(G + "[+] " + W + "Added " + count + " Online Malware URLs")
+    malwareurlsLogger.info("[+] Added %s Online Malware URLs", count)
 
     if len(srcip) > 0:
-        print(G + "[+] " + W + "Multi source IP mode enabled")
+        malwareurlsLogger.info("[+] Multi source IP mode enabled")
 
     with click.progressbar(data, label="Testing Malware URLs", length=len(data)) as urls:
         for url in urls:
             try:
                 if len(srcip) > 0:
-                    setsrcip(srcip).get(url, timeout=1)
+                    r = setsrcip(srcip).get(url, timeout=1)
                 else:
-                    requests.get(url, timeout=1)
+                    r = requests.get(url, timeout=1)
             except requests.exceptions.RequestException:
-                pass
+                vxvaultLogger.debug(f"Checking {url} Blocked {r}")
+            else:
+                vxvaultLogger.debug(f"Checking {url} Allowed {r}")
 
 
 @cli.command()
@@ -290,10 +328,10 @@ def badssl(srcip):
 def _badssl(srcip):
     """  Botnet SSL certificate check """
     # https://sslbl.abuse.ch/blacklist/sslipblacklist.csv
-    print(G + "[+] " + W + "Botnet Bad SSL Certs")
-    print(G + "[+] " + W + "Fetching Certificate Source list...", end=" ")
+    badsslLogger.info("[+] Botnet Bad SSL Certs")
+    badsslLogger.info("[+] Fetching Certificate Source list...")
     r = requests.get("https://sslbl.abuse.ch/blacklist/sslipblacklist.csv", verify=False)
-    print("Done")
+    badsslLogger.info("[+] Done")
 
     # clean up list
     data2 = []
@@ -310,20 +348,23 @@ def _badssl(srcip):
     data = data2
 
     count = str(len(data))
-    print(G + "[+] " + W + "Added " + count + " Certificate sources")
+    badsslLogger.info("[+] Added %s Certificate sources", count)
 
     if len(srcip) > 0:
-        print(G + "[+] " + W + "Multi source IP mode enabled")
+        badsslLogger.info("[+] Multi source IP mode enabled")
 
     with click.progressbar(data, label="Testing Malware URLs", length=len(data)) as urls:
         for url in urls:
             try:
                 if len(srcip) > 0:
-                    setsrcip(srcip).get(url, timeout=1)
+                    r = setsrcip(srcip).get(url, timeout=1)
                 else:
-                    requests.get(url, timeout=1)
+                    r = requests.get(url, timeout=1)
             except requests.exceptions.RequestException:
-                pass
+                badsslLogger.debug(f"Checking {url} Blocked {r}")
+            else:
+                badsslLogger.debug(f"Checking {url} Allowed {r}")
+                
 
 
 @cli.command()
@@ -336,10 +377,15 @@ def _eicar():
     """  Firewall AV Eicar Test """
     # https://secure.eicar.org/eicar.com
     # Only top 100 online classified urls are processed unless --full is specified
-    print(G + "[+] " + W + "EICAR Antivirus Test")
-    print(G + "[+] " + W + "Fetching EICAR mock virus...", end=" ")
-    r = requests.get("https://secure.eicar.org/eicar.com", verify=False)
-    print(r)
+    eicarLogger.info("[+] EICAR Antivirus Test")
+    eicarLogger.info("[+] Fetching EICAR mock virus...")
+    url = "https://secure.eicar.org/eicar.com"
+    try:
+        r = requests.get(url, verify=False)
+    except requests.exceptions.RequestException:
+        eicarLogger.debug(f"Checking {url} Blocked {r}")
+    else:
+        eicarLogger.info(f"Checking {url} Allowed {r}")    
 
 
 @cli.command()
@@ -351,27 +397,30 @@ def appctrl(full):
 
 def _appctrl(full):
     """ Trigger application control """
-    print(G + "[+] " + W + "Application Control")
-    print(G + "[+] " + W + "Fetching AppCtrl list...", end=" ")
+    appctrlLogger.info("[+] Application Control")
+    appctrlLogger.info("[+] Fetching AppCtrl list...")
     f = open("appctrl.csv", 'r')
     lines = f.read()
-    print("Done")
+    appctrlLogger.info("[+] Done")
+    f.close()
 
     data2 = lines.split("\n")
     data = data2[:20]
     if full:
-        print(G + "[+] " + W + "We are full mode.")
+        appctrlLogger.info("[+] We are full mode.")
         data = data2
 
     count = str(len(data))
-    print(G + "[+] " + W + "Added " + count + " Testing URLs")
+    appctrlLogger.info(f"[+] Added {count} Testing URLs")
 
     with click.progressbar(data, label="Triggering Categories", length=len(data)) as urls:
         for url in urls:
             try:
-                requests.get(url, timeout=1)
+                r = requests.get(url, timeout=1)
             except requests.exceptions.RequestException:
-                pass
+                appctrlLogger.debug(f"Checking {url} Blocked {r}")
+            else:
+                appctrlLogger.debug(f"Checking {url} Allowed {r}")
 
 
 @cli.command()
@@ -383,29 +432,30 @@ def wf(full):
 
 def _wf(full):
     """  URL categorisation trigger """
-    # http://www.malwaredomainlist.com/mdlcsv.php
-    print(G + "[+] " + W + "WF categorisation trigger")
-    print(G + "[+] " + W + "Fetching URL list...", end=" ")
-    # r = requests.get("http://vxvault.net/URL_List.php", timeout=1)
+    wfLogger.info("[+] WF categorisation trigger")
+    wfLogger.info("[+] Fetching URL list...")
     f = open("wf.csv", 'r')
     lines = f.read()
-    print("Done")
+    wfLogger.info("[+] Done")
+    f.close()
 
     data2 = lines.split("\n")
     data = data2[:100]
     if full:
-        print(G + "[+] " + W + "We are full mode.")
+        wfLogger.info("[+] We are full mode.")
         data = data2
 
     count = str(len(data))
-    print(G + "[+] " + W + "Added " + count + " Testing URLs")
+    wfLogger.info("[+] Added %s Testing URLs", count)
 
     with click.progressbar(data, label="Triggering URL Categories.", length=len(data)) as urls:
         for url in urls:
             try:
-                requests.get(url, timeout=1)
+                r = requests.get("https://www.%s" % url, timeout=2)
             except requests.exceptions.RequestException:
-                pass
+                wfLogger.debug(f"Checking {url} Blocked")
+            else:
+                wfLogger.debug(f"Checking {url} Allowed")                
 
 
 @cli.command()
@@ -417,36 +467,46 @@ def webtraffic(full, chrome):
 
 
 def _webtraffic(full, chrome):
+    webtrafficLogger.info("[+] Web traffic Generator")
+    webtrafficLogger.info("[+] Fetching traffic list...")
     if chrome:
-        driver = webdriver.Chrome()
+        webtrafficLogger.info("[+] Opening Chrome")
+        options = Options()
+        options.page_load_strategy = 'eager'
+        driver = webdriver.Chrome(options=options)
     else:
-        driver = webdriver.Firefox()
-        print(G + "[+] " + W + "FireFox will be used for Web Traffic testing. Use --chrome to use Chrome")
+        webtrafficLogger.info("[+] Opening Firefox")
+        options = webdriver.FirefoxOptions()
+        options.page_load_strategy = 'eager'
+        driver = webdriver.Firefox(options=options)
+        
     driver.set_window_size(1920, 1080)
     driver.set_page_load_timeout(10)
 
-    print(G + "[+] " + W + "Web traffic trigger")
-    print(G + "[+] " + W + "Fetching traffic list...", end=" ")
     f = open("goodurl.csv", 'r')
     lines = f.read()
-    print("Done")
+    webtrafficLogger.info("[+] Done")
+    f.close()
 
     data2 = lines.split("\n")
     data = data2[:20]
     if full:
-        print(G + "[+] " + W + "We are full mode.")
+        webtrafficLogger.info("[+] We are full mode.")
         data = data2
 
     count = str(len(data))
-    print(G + "[+] " + W + "Added " + count + " Testing URLs")
+    webtrafficLogger.info(f"[+]  Added {count} Testing URLs")
 
     with click.progressbar(data, label="Generating Traffic", length=len(data)) as urls:
         for url in urls:
             try:
-                driver.get("http://www.%s" % url)
+                driver.get("https://www.%s" % url)
             except selenium.common.exceptions.TimeoutException:
-                pass
-
+                webtrafficLogger.debug(f"Checking {url} Unavailable")
+            except selenium.common.exceptions.WebDriverException:
+                webtrafficLogger.debug(f"Checking {url} Error")
+            else:
+                webtrafficLogger.debug(f"Accessing {url} Opened")  
     driver.quit()
 
 
