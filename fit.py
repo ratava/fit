@@ -15,7 +15,7 @@ from selenium.webdriver.chrome.options import Options
 # disable warnings in requests for cert bypass
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
-__version__ = 0.30
+__version__ = 0.31
 
 
 def ftest():
