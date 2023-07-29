@@ -10,7 +10,6 @@ import random
 from urllib3.exceptions import InsecureRequestWarning
 #from selenium import webdriver
 import selenium
-import platform
 import logging
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -100,8 +99,10 @@ vxvaultLogger = logging.getLogger('fit.vxvault')
 
 
 @click.group(chain=True)
-@click.option('--full', is_flag=True, help="Run in full list mode.", show_default=True, default=False)
-@click.option('--chrome', is_flag=True, help="Run Website tests in Chrome instead of FireFox.")
+@click.option('--full', is_flag=True, help="Run in full list mode.", 
+              show_default=True, default=False)
+@click.option('--chrome', is_flag=True, 
+              help="Run Website tests in Chrome instead of FireFox.")
 def cli(full, chrome):
     banner()
     setLogging()
@@ -122,8 +123,10 @@ def version():
 @cli.command()
 @click.option('--repeat/--no-repeat', default=False)
 @click.option('--srcip', '-s', multiple=True)
-@click.option('--full', is_flag=True, help="Run in full list mode.", show_default=True, default=False)
-@click.option('--chrome', is_flag=True, help="Run Website tests in Chrome instead of FireFox.")
+@click.option('--full', is_flag=True, help="Run in full list mode.", show_default=True, 
+              default=False)
+@click.option('--chrome', is_flag=True, 
+              help="Run Website tests in Chrome instead of FireFox.")
 def all(repeat, srcip, full, chrome):
     """Run all test one after the other"""
     checkips(srcip)
@@ -134,7 +137,7 @@ def all(repeat, srcip, full, chrome):
         logging.info("[+] Running in quick mode. Use --full to override")
 
     if not chrome:
-        logging.info("[+]  FireFox will be used for Web Traffic testing. Use --chrome to use Chrome")
+        logging.info("[+] FireFox will be used for Web Traffic testing")
 
     while True:
         _iprep(full)
@@ -161,7 +164,8 @@ def _iprep(full):
     # https://iplists.firehol.org/files/firehol_webclient.netset
     iprepLogger.info("[+] IP Reputation Test")
     iprepLogger.info("[+] Fetching bad ip list...")
-    r = requests.get("https://iplists.firehol.org/files/firehol_webclient.netset", verify=False)
+    r = requests.get("https://iplists.firehol.org/files/firehol_webclient.netset", 
+                     verify=False)
     iprepLogger.info("[+] Done")
 
     # clean up list
@@ -229,7 +233,7 @@ def _vxvault(srcip, full):
     count = str(len(data))
     vxvaultLogger.info("[+] Added %s Online Malware URLs", count)
 
-    with click.progressbar(data, label="Testing Malware URLs", length=len(data)) as urls:
+    with click.progressbar(data, label="Testing Malware URL", length=len(data)) as urls:
         for url in urls:
             try:
                 if len(srcip) > 0:
@@ -283,7 +287,7 @@ def _malwareurls(srcip, full):
     if len(srcip) > 0:
         malwareurlsLogger.info("[+] Multi source IP mode enabled")
 
-    with click.progressbar(data, label="Testing Malware URLs", length=len(data)) as urls:
+    with click.progressbar(data, label="Testing Malware URL", length=len(data)) as urls:
         for url in urls:
             try:
                 if len(srcip) > 0:
@@ -309,7 +313,8 @@ def _badssl(srcip):
     # https://sslbl.abuse.ch/blacklist/sslipblacklist.csv
     badsslLogger.info("[+] Botnet Bad SSL Certs")
     badsslLogger.info("[+] Fetching Certificate Source list...")
-    r = requests.get("https://sslbl.abuse.ch/blacklist/sslipblacklist.csv", verify=False)
+    r = requests.get("https://sslbl.abuse.ch/blacklist/sslipblacklist.csv", 
+                     verify=False)
     badsslLogger.info("[+] Done")
 
     # clean up list
@@ -332,7 +337,7 @@ def _badssl(srcip):
     if len(srcip) > 0:
         badsslLogger.info("[+] Multi source IP mode enabled")
 
-    with click.progressbar(data, label="Testing Malware URLs", length=len(data)) as urls:
+    with click.progressbar(data, label="Testing SSL Cert", length=len(data)) as urls:
         for url in urls:
             try:
                 if len(srcip) > 0:
@@ -392,7 +397,8 @@ def _appctrl(full):
     count = str(len(data))
     appctrlLogger.info(f"[+] Added {count} Testing URLs")
 
-    with click.progressbar(data, label="Triggering Categories", length=len(data)) as urls:
+    with click.progressbar(data, label="Triggering Categories", 
+                           length=len(data)) as urls:
         for url in urls:
             try:
                 r = requests.get(url, timeout=1)
@@ -427,10 +433,11 @@ def _wf(full):
     count = str(len(data))
     wfLogger.info("[+] Added %s Testing URLs", count)
 
-    with click.progressbar(data, label="Triggering URL Categories.", length=len(data)) as urls:
+    with click.progressbar(data, label="Triggering URL Categories.", 
+                           length=len(data)) as urls:
         for url in urls:
             try:
-                r = requests.get("https://www.%s" % url, timeout=2)
+                requests.get("https://www.%s" % url, timeout=2)
             except requests.exceptions.RequestException:
                 wfLogger.debug(f"Checking {url} Blocked")
             else:
@@ -439,7 +446,8 @@ def _wf(full):
 
 @cli.command()
 @click.option('--full', is_flag=True, help="Run in full list mode.")
-@click.option('--chrome', is_flag=True, help="Run Website tests in Chrome instead of FireFox.")
+@click.option('--chrome', is_flag=True, 
+              help="Run Website tests in Chrome instead of FireFox.")
 def webtraffic(full, chrome):
     """ Generate good web traffic """
     _webtraffic(full, chrome)
