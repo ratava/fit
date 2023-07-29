@@ -1,21 +1,21 @@
-# fit
+# fit.py
 Firewall Inspection Tester
 
 Author: Alex Harvey, @meshmeld, 
 Fixes and enhancements by Brent Wesley, @ratava, 07/2023
 
 fit.py is design to simulate traffic for testing modern firwall blocking techniques.  
-## WARNING If you use this script in a production monirtored environment it will trigger a large amount of alerts. Inclding Antivirus. No virus code is executed by this script but attempts will be made to acces sites and IP's with know bad code and ssl certificates. This includes lists from the follwing sources.
+## WARNING If you use this script in a production environment it will trigger a large amount of alerts. Inclding Antivirus. No virus code is executed by this script but attempts will be made to acces sites and IP's with know bad code and ssl certificates. This includes lists from the follwing sources.
 
-IP Reputation Testing - firehol.org Webclient ip reputation list
-AV Testing - VX Vault
-AV Testing - eicar.org
+IP Reputation Testing - firehol.org Webclient ip reputation list  
+AV Testing - VX Vault  
+AV Testing - eicar.org  
 WF blocking - Chrome Malicious Website list  
-Malware URL's - urlhaus.abuse.ch Last 30 days list
+Malware URL's - urlhaus.abuse.ch Last 30 days list  
 APP Ctrl - Application control triggers  
-Good Web Traffic - Good web traffic (great for testing request througput, tests conducted in browser)
+Good Web Traffic - Good web traffic (great for testing request througput, tests conducted in browser)  
 
-N.B. Please contact me if you wish to see any further data sources added.
+N.B. Please contact me if you wish to see any further data sources added.  
 # Installing
 
 FIT runs under python3, the recommend installation menthod is to use pyvenv. 
