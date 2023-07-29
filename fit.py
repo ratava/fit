@@ -58,9 +58,9 @@ def checkips(srcip):
     for ipaddr in srcip:
         try:
             socket.inet_aton(ipaddr)
-            print(G + "[+] " + W + "Source IP Address " + ipaddr)
+            print("[+] Source IP Address " + ipaddr)
         except socket.error:
-            print(R + "[-] " + W + "IP Address " + ipaddr + " is not valid")
+            print("[-]  IP Address " + ipaddr + " is not valid")
             exit(-1)
 
 
@@ -131,10 +131,10 @@ def all(repeat, srcip, full, chrome):
         logging.info("Running All test on Repeat")
 
     if not full:
-        logging.info(G + "[+] " + W + "Running in quick mode. Use --full to override")
+        logging.info("[+] Running in quick mode. Use --full to override")
 
     if not chrome:
-        logging.info(G + "[+] " + W + "FireFox will be used for Web Traffic testing. Use --chrome to use Chrome")
+        logging.info("[+]  FireFox will be used for Web Traffic testing. Use --chrome to use Chrome")
 
     while True:
         _iprep(full)
@@ -210,7 +210,7 @@ def _vxvault(srcip, full):
     vxvaultLogger.info("[+] Done")
 
     if len(srcip) > 0:
-        print(G + "[+] " + W + "Multi source IP mode enabled")
+        vxvaultLogger.info("[+] Multi source IP mode enabled")
 
     # clean up list
     data2 = []
