@@ -1,8 +1,11 @@
 # fit
-firewall inspection tester
+Firewall Inspection Tester
 
 Author: Alex Harvey, @meshmeld, 
-Updated IP Lists and various fixes/enhancements by Brent Wesley, @ratava, 07/2023
+Fixes and enhancements by Brent Wesley, @ratava, 07/2023
+
+fit.py is design to simulate traffic for testing modern firwall blocking techniques.  
+## WARNING If you use this script in a production monirtored environment it will trigger a large amount of alerts. Inclding Antivirus. No virus code is executed by this script but attempts will be made to acces sites and IP's with know bad code and ssl certificates. This includes lists from the follwing sources.
 
 IP Reputation Testing - firehol.org Webclient ip reputation list
 AV Testing - VX Vault
@@ -10,7 +13,9 @@ AV Testing - eicar.org
 WF blocking - Chrome Malicious Website list  
 Malware URL's - urlhaus.abuse.ch Last 30 days list
 APP Ctrl - Application control triggers  
-Good Web Traffic - Good web traffic   
+Good Web Traffic - Good web traffic (great for testing request througput, tests conducted in browser)
+
+N.B. Please contact me if you wish to see any further data sources added.
 # Installing
 
 FIT runs under python3, the recommend installation menthod is to use pyvenv. 
@@ -21,14 +26,14 @@ source env/bin/activate
 pip install -r requirements.txt
 ```
 
-FIT also requires that you have FireFox or Chrome installed. Use --chrome to use Chrome 
-### Selenium works better with Firefox. Chrome will display console erros.
+FIT also requires that you have FireFox or Chrome installed. Use --chrome to use Chrome  
+### Selenium works better with Firefox. Chrome will display console erros.  
 # Screenshot
 
 ![screenshot](https://github.com/ratava/fit/blob/main/screenshot.png)
 
 # Quick mode  
-Bye default FIT will not use a quick test mode. The following applies:  
+By default FIT will not use a quick test mode. The following applies:  
   iprep: 100 enties  
   vxvault: 100 entries  
   maulwareurls: 100 entries  
@@ -37,7 +42,8 @@ Bye default FIT will not use a quick test mode. The following applies:
   webtraffic: 20 entries  
 Use command line option --full to runn full lists
 
-  
+# Logging
+FIT how ahs full logging. fit.out will recreated each session and contain additional information including individual result from each url/ip tested. Use this file to cross reference you Firewall logs.  
 
 # Using FIT
 ## Command Line
