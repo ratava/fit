@@ -19,6 +19,14 @@ requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 __version__ = 0.30
 
 
+def ftest():
+    return 3
+
+
+def test_function():
+    assert ftest() == 3
+
+
 def banner():
     """Print stylized banner"""
     print(r"""
