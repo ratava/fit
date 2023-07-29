@@ -4,7 +4,6 @@
 import click
 import requests
 import requests_toolbelt
-import telnetlib
 import socket
 import random
 from urllib3.exceptions import InsecureRequestWarning
@@ -195,16 +194,16 @@ def _iprep(full):
     count = str(len(data))
     iprepLogger.info("[+] Added %s Reputation IP's", count)
 
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.settimeout(2)
     with click.progressbar(data, label="Checking IP's",
                            length=len(data)) as ips:
         for ip in ips:
             iprepLogger.debug("Checking %s", ip)
-            try:
-                telnetlib.Telnet(ip, 443, 1)
-            except (socket.timeout, socket.error, ConnectionRefusedError):
-                iprepLogger.debug("Blocked")
+            if sock.connect_ex((ip, 443)) == 0:
+                iprepLogger.info(f"{ip} is Blocked")
             else:
-                iprepLogger.debug("Open")
+                iprepLogger.debug(f"{ip} is Open")
 
 
 @cli.command()
