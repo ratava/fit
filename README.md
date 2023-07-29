@@ -22,7 +22,7 @@ pip install -r requirements.txt
 ```
 
 FIT also requires that you have FireFox or Chrome installed. Use --chrome to use Chrome 
-
+### Selenium works better with Firefox. Chrome will display console erros.
 # Screenshot
 
 ![screenshot](https://github.com/ratava/fit/blob/main/screenshot.png)
@@ -49,6 +49,7 @@ vxvault - vx vault malware url list
 eicar - eicar.org mock virus download test  
 malwareurls - urlhouse malware url test  
 appctrl - application control testing  
+wf -Webfilter Categories  
 webtraffic - Good Web Traffic testing  
 
 ## Options

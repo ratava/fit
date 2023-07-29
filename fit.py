@@ -20,27 +20,6 @@ requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 __version__ = 0.30
 
-# some console colours
-W = '\033[0m'  # white (normal)
-R = '\033[31m'  # red
-G = '\033[32m'  # green
-O = '\033[33m'  # orange
-B = '\033[34m'  # blue
-P = '\033[35m'  # purple
-C = '\033[36m'  # cyan
-GR = '\033[37m'  # gray
-
-if platform.system() == "Windows":
-    W = ''  # white (normal)
-    R = ''  # red
-    G = ''  # green
-    O = ''  # orange
-    B = ''  # blue
-    P = ''  # purple
-    C = ''  # cyan
-    GR = ''  # gray
-
-
 def banner():
     """Print stylized banner"""
     print(r"""
@@ -343,7 +322,7 @@ def _badssl(srcip):
                 split_line = line1.split(",")
                 ip = split_line[1]
                 port = split_line[2]
-                srcurl = ("https://", ip, ":", port)
+                srcurl = (f"https://{ip}:{port}")
                 data2.append(srcurl)
     data = data2
 
