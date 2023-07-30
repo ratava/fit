@@ -450,7 +450,7 @@ def _wf(full):
     count = str(len(data))
     wfLogger.info("[+] Added %s Testing URLs", count)
 
-    with click.progressbar(data, label="Triggering URL Categories.",
+    with click.progressbar(data, label="Testing URL.",
                            length=len(data)) as urls:
         for url in urls:
             try:
