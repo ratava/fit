@@ -1,6 +1,7 @@
-click>=8.1.6
-requests>=2.31.0
-requests_toolbelt
-selenium>=4.10.0
-urllib3~=2.0.4
-setuptools~=62.6.0
+click>=7.1.2
+requests>=2.27.1
+requests_toolbelt>=1.0.0
+selenium>=4.0.0a1
+urllib3~=1.26.16
+setuptools~=44.1.1
+webdriver-manager>=3.7.1
