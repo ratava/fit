@@ -18,10 +18,12 @@ requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 __version__ = 0.31
 
 
+# pytest function
 def ftest():
     return 3
 
 
+# pytest function
 def test_function():
     assert ftest() == 3
 
@@ -46,7 +48,7 @@ def banner():
 `----'
 Firewall Inspection Tester
 Original Author: Alex Harvey, @meshmeld,
-Updated IP Lists and various fixes/enhancements by Brent Wesley, @ratava""")
+Updated 2023: Brent Wesley, @ratava""")
     print("Version: %0.2f\n" % __version__)
 
 
