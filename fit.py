@@ -15,7 +15,7 @@ from selenium.webdriver.chrome.options import Options
 # disable warnings in requests for cert bypass
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
-__version__ = 0.31
+__version__ = 0.32
 
 
 # pytest function
@@ -196,16 +196,30 @@ def _iprep(full):
     count = str(len(data))
     iprepLogger.info("[+] Added %s Reputation IP's", count)
 
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.settimeout(2)
     with click.progressbar(data, label="Checking IP's",
                            length=len(data)) as ips:
         for ip in ips:
-            iprepLogger.debug("Checking %s", ip)
-            if sock.connect_ex((ip, 443)) == 0:
+            port = 80
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(1)
+            iprepLogger.debug("Checking %s port %s", ip, port)
+            if sock.connect_ex((ip, 80)) == 0:
                 iprepLogger.info(f"{ip} is Blocked")
             else:
                 iprepLogger.debug(f"{ip} is Open")
+            sock.close()
+    with click.progressbar(data, label="Checking IP's",
+                           length=len(data)) as ips:
+        for ip in ips:
+            port = 443
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(1)
+            iprepLogger.debug("Checking %s port %s", ip, port)
+            if sock.connect_ex((ip, 80)) == 0:
+                iprepLogger.debug(f"{ip} is Blocked")
+            else:
+                iprepLogger.debug(f"{ip} is Open")
+            sock.close()
 
 
 @cli.command()
@@ -418,11 +432,11 @@ def _appctrl(full):
                            length=len(data)) as urls:
         for url in urls:
             try:
-                r = requests.get(url, timeout=1)
+                requests.get(url, timeout=1)
             except requests.exceptions.RequestException:
-                appctrlLogger.debug(f"Checking {url} Blocked {r}")
+                appctrlLogger.debug(f"Checking {url} Blocked")
             else:
-                appctrlLogger.debug(f"Checking {url} Allowed {r}")
+                appctrlLogger.debug(f"Checking {url} Allowed")
 
 
 @cli.command()
