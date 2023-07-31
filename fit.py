@@ -166,7 +166,7 @@ def all(repeat, srcip, full, chrome):
 @cli.command()
 @click.option('--full', is_flag=True, help="Run in full list mode.")
 def iprep(full):
-    """IP Reputation test using zeustracker uiplist"""
+    """IP Reputation test using zeustracker iplist"""
     _iprep(full)
 
 
@@ -311,9 +311,9 @@ def _malwareurls(srcip, full):
                 else:
                     r = requests.get(url, timeout=1)
             except requests.exceptions.RequestException:
-                vxvaultLogger.debug(f"Checking {url} Blocked {r}")
+                malwareurlsLogger.debug(f"Checking {url} Blocked {r}")
             else:
-                vxvaultLogger.debug(f"Checking {url} Allowed {r}")
+                malwareurlsLogger.debug(f"Checking {url} Allowed {r}")
 
 
 @cli.command()
